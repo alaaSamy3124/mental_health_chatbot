@@ -5,10 +5,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.preprocessing import LabelEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from nltk.stem import WordNetLemmatizer
+import nltk
+
+try:
+    nltk.data.find('corpora/wordnet')
+except LookupError:
+    nltk.download('wordnet')
+    nltk.download('omw-1.4')
 
 lemmatizer = WordNetLemmatizer()
 
-# التحيات
 greetings = {
     "hi": "Hello! How can I help you today?",
     "hello": "Hi there! How can I help you?",
@@ -51,7 +57,6 @@ def get_bot_response(user_input):
         if key in user_input_lower:
             return greetings[key]
 
-    # لو مش تحية، استخدم KNN
     user_input = preprocess_text(user_input)
     user_vec = vectorizer.transform([user_input])
     dist, _ = knn.kneighbors(user_vec, n_neighbors=1)
@@ -77,13 +82,11 @@ if st.button("🗑️ Clear Chat"):
 user_input = st.chat_input("Type your message here...")
 
 if user_input:
-    # إضافة رسالة المستخدم
     st.session_state.messages.append({"role": "user", "content": user_input})
-    # الحصول على رد البوت
     bot_response = get_bot_response(user_input)
     st.session_state.messages.append({"role": "assistant", "content": bot_response})
 
-# عرض المحادثة
+
 for msg in st.session_state.messages:
     if msg["role"] == "user":
         with st.chat_message("user"):
