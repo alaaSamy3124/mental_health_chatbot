@@ -7,14 +7,16 @@ from sklearn.neighbors import KNeighborsClassifier
 from nltk.stem import WordNetLemmatizer
 import nltk
 
-try:
-    nltk.data.find('corpora/wordnet')
-except LookupError:
-    nltk.download('wordnet')
-    nltk.download('omw-1.4')
+# تحميل WordNet لكل جلسة تشغيل
+for pkg in ['wordnet', 'omw-1.4']:
+    try:
+        nltk.data.find(f'corpora/{pkg}')
+    except LookupError:
+        nltk.download(pkg)
 
 lemmatizer = WordNetLemmatizer()
 
+# التحيات
 greetings = {
     "hi": "Hello! How can I help you today?",
     "hello": "Hi there! How can I help you?",
@@ -30,6 +32,9 @@ labels = df['Answers'].tolist()
 
 # Preprocessing
 def preprocess_text(text):
+    # تأكد من تحويل النص لأي شيء فارغ إلى string لتجنب أي خطأ
+    if not isinstance(text, str):
+        text = str(text)
     text = text.lower()
     text = text.translate(str.maketrans("", "", string.punctuation))
     text = text.strip()
@@ -57,6 +62,7 @@ def get_bot_response(user_input):
         if key in user_input_lower:
             return greetings[key]
 
+    # لو مش تحية، استخدم KNN
     user_input = preprocess_text(user_input)
     user_vec = vectorizer.transform([user_input])
     dist, _ = knn.kneighbors(user_vec, n_neighbors=1)
@@ -69,13 +75,13 @@ def get_bot_response(user_input):
 
 # Streamlit Interface
 st.set_page_config(page_title="Mental Health Chatbot", page_icon="💬", layout="wide")
-st.title("💬 Mental Health Chatbot")
+st.title(" Mental Health Chatbot")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # Clear Chat button
-if st.button("🗑️ Clear Chat"):
+if st.button(" Clear Chat"):
     st.session_state.messages = []
 
 # Chat Input (live)
@@ -86,7 +92,7 @@ if user_input:
     bot_response = get_bot_response(user_input)
     st.session_state.messages.append({"role": "assistant", "content": bot_response})
 
-
+# عرض المحادثة
 for msg in st.session_state.messages:
     if msg["role"] == "user":
         with st.chat_message("user"):
