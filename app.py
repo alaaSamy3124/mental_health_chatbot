@@ -66,7 +66,7 @@ def get_bot_response(user_input):
     user_input = preprocess_text(user_input)
     user_vec = vectorizer.transform([user_input])
     dist, _ = knn.kneighbors(user_vec, n_neighbors=1)
-    threshold = 0.9
+    threshold = 0.7
     if dist[0][0] > threshold:
         return "I'm not sure how to respond to that. Can you rephrase?"
     predicted_label = knn.predict(user_vec)
